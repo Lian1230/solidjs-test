@@ -19,6 +19,7 @@ const App: Component = () => {
         >
           Learn Solid
         </a>
+        <p>commit 1</p>
       </header>
     </div>
   );
