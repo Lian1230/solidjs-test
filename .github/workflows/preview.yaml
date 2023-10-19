@@ -14,6 +14,7 @@ jobs:
       - name: Test failed
         run: exit 1
   Vercel:
+    needs: [Install]
     runs-on: ubuntu-latest
     steps:
       - name: Waiting for 200 from the Vercel Preview
@@ -24,3 +25,10 @@ jobs:
           max_timeout: 60
       # access preview url
       - run: echo ${{steps.waitFor200.outputs.url}}
+  Test:
+    runs-on: ubuntu-latest
+    needs: [Install, Vercel]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Test
+        run: exit 0
