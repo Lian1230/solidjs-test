@@ -42,7 +42,6 @@ jobs:
 
   Test:
     needs: Wait-for-Vercel
-    if: needs.Install.outputs.status == 'failure'
     runs-on: ubuntu-latest
     steps:
       - run: echo ${{needs.Wait-for-Vercel.outputs.url}}
