@@ -1,0 +1,59 @@
+name: GitHub Actions Vercel Preview Deployment
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+on:
+  push:
+    branches-ignore:
+      - main
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  Install-Dep:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Get Current Job Log URL
+        uses: Tiryoh/gha-jobid-action@v1
+        id: job
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          job_name: ${{ github.job }}
+      - name: Test failed
+        run: exit 0
+      - name: test echo
+        run: echo ${{ steps.job.outputs.html_url }}
+    outputs:
+      status: ${{ job.status }}
+
+  Wait-for-Vercel:
+    needs: Install-Dep
+    runs-on: ubuntu-latest
+    steps:
+      - name: Waiting for 200 from the Vercel Preview
+        uses: patrickedqvist/wait-for-vercel-preview@v1.3.1
+        id: waitForVercel
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          max_timeout: 60
+      # access preview url
+      - run: echo ${{steps.waitForVercel.outputs.url}}
+    outputs:
+      url: ${{ steps.waitForVercel.outputs.url }}
+
+  Test:
+    needs: [Install-Dep, Wait-for-Vercel]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Current Job Log URL
+        uses: Tiryoh/gha-jobid-action@v1
+        id: job
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          job_name: ${{ github.job }}
+      - run: echo ${{needs.Wait-for-Vercel.outputs.url}}
+      - run: echo ${{ steps.job.outputs.html_url }}
