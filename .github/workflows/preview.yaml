@@ -10,9 +10,12 @@ jobs:
   Install:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
       - name: Test failed
         run: exit 1
+      - uses: actions/checkout@v3
+      - name: test echo
+        if: failure()
+        run: echo "job failed"
     outputs:
       status: ${{ job.status }}
 
@@ -31,11 +34,8 @@ jobs:
       url: ${{ steps.waitForVercel.outputs.url }}
 
   Test:
-    needs: [Install, Vercel]
+    needs: Vercel
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - run: echo ${{needs.Vercel.outputs.url}}
-      - name: Test failed
-        if: needs.Install.outputs.status == 'failure'
-        run: echo "Install failed"
