@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Test failed
-        run: exit 0
+        run: exit 1
       - uses: actions/checkout@v3
       - name: test echo
         if: failure()
@@ -43,5 +43,7 @@ jobs:
     needs: [Install, Wait-for-Vercel]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
       - run: echo ${{needs.Wait-for-Vercel.outputs.url}}
+      - name: test failed
+        if: failure()
+        run: echo "I know job1 failed"
