@@ -17,11 +17,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Test failed
-        run: exit 0
+        run: exit 1
       - uses: actions/checkout@v3
+      - name: Get Current Job Log URL
+        uses: Tiryoh/gha-jobid-action@v1
+        id: jobs
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          job_name: ${{ github.job }}
       - name: test echo
         if: failure()
-        run: echo "job failed"
+        run: echo ${{ steps.jobs.outputs.html_url }}
     outputs:
       status: ${{ job.status }}
 
@@ -41,7 +47,7 @@ jobs:
       url: ${{ steps.waitForVercel.outputs.url }}
 
   Test:
-    needs: Wait-for-Vercel
+    needs: [Install-Dep, Wait-for-Vercel]
     runs-on: ubuntu-latest
     steps:
       - run: echo ${{needs.Wait-for-Vercel.outputs.url}}
