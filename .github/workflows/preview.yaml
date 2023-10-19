@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Test failed
-        run: exit 1
+        run: exit 0
       - uses: actions/checkout@v3
       - name: test echo
         if: failure()
@@ -25,7 +25,7 @@ jobs:
     outputs:
       status: ${{ job.status }}
 
-  Vercel:
+  Wait-for-Vercel:
     runs-on: ubuntu-latest
     steps:
       - name: Waiting for 200 from the Vercel Preview
@@ -40,8 +40,8 @@ jobs:
       url: ${{ steps.waitForVercel.outputs.url }}
 
   Test:
-    needs: Vercel
+    needs: [Install, Wait-for-Vercel]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: echo ${{needs.Vercel.outputs.url}}
+      - run: echo ${{needs.Wait-for-Vercel.outputs.url}}
